@@ -1,0 +1,126 @@
+#!/bin/sh
+
+if [ ! -e /data/src/ ];
+then
+	mkdir /data/src
+fi
+
+if [ ! -e /data/server/openldap/ ]; 
+then
+#	ln -s /ROOT/ /data
+	mkdir /ROOT/server/
+	groupadd webmaster;
+        adduser webmaster -g webmaster -s /sbin/nologin;
+	
+	cd /data/src/
+	yum -y install glibc-headers
+	yum -y install gcc-c++
+	yum -y install gcc
+	#yum -y install lrzsz
+	yum -y install ncurses-devel
+        yum -y install gd gd-devel
+        yum -y install libjpeg libjpeg-devel
+        yum -y install libpng libpng-devel
+        yum -y install libxml2 libxml2-devel
+        yum -y install zlib-devel openssl-devel
+        yum -y install bzip2 bzip2-devel
+        yum -y install curl curl-devel
+        yum -y  install freetype-devel
+        yum -y install gmp-devel
+        yum -y install libmcrypt libmcrypt-devel
+        yum -y install net-snmp net-snmp-devel
+        yum -y install mysql-devel
+        yum -y install openldap
+        yum -y install openldap-devel
+        yum -y install openssl openssl-devel
+        yum -y install openssl* cyrus*
+        yum -y install ImageMagick*
+
+        wget http://adm.im20.com.cn/res/soft/php/libiconv-1.13.1.tar.gz
+        wget http://adm.im20.com.cn/res/soft/php/libmcrypt-2.5.8.tar.gz
+        wget http://adm.im20.com.cn/res/soft/php/mhash-0.9.9.9.tar.gz
+        wget http://adm.im20.com.cn/res/soft/php/mcrypt-2.6.8.tar.gz
+        wget http://adm.im20.com.cn/res/soft/php/memcache-2.2.5.tgz
+        wget http://adm.im20.com.cn/res/soft/svn/db-5.0.21.NC.tar.gz
+        wget http://adm.im20.com.cn/res/soft/svn/openldap-2.4.31.tgz
+
+	export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+        #db-
+                tar -zxvf db-5.0.21.NC.tar.gz
+                cd db-5.0.21.NC
+                cd build_unix/
+                ../dist/configure --prefix=/data/server/berkeley_db --enable-cxx --disable-shared
+                make -j
+                make install
+                cd ../../
+        #openldap
+                tar zxvf openldap-2.4.31.tgz
+                cd openldap-2.4.31
+                env CPPFLAGS="-I/data/server/berkeley_db/include" LDFLAGS="-L/data/server/berkeley_db/lib"
+                cp /data/server/berkeley_db/include/* /usr/include/
+                cp /data/server/berkeley_db/lib/* /usr/lib/
+                cp /data/server/berkeley_db/lib/* /usr/lib64/
+                ldconfig -v
+                ./configure --prefix=/data/server/openldap/ --enable-ldbm
+                make
+                make install
+                cd ../
+	#libiconv
+        	tar zxvf libiconv-1.13.1.tar.gz
+        	cd libiconv-1.13.1/
+        	./configure
+        	make
+		make install
+        	cd ../
+
+        #libmcrypt
+        	tar zxvf libmcrypt-2.5.8.tar.gz
+        	cd libmcrypt-2.5.8/
+        	./configure
+        	make
+		make install
+        	ldconfig
+        	cd libltdl/
+        	./configure --enable-ltdl-install
+        	make
+		make install
+        	cd ../../
+
+        #mhash
+        	tar zxvf mhash-0.9.9.9.tar.gz
+        	cd mhash-0.9.9.9/
+        	./configure
+        	make
+		make install
+        	cd ../
+	#mcrypt
+        	tar zxvf mcrypt-2.6.8.tar.gz
+        	cd mcrypt-2.6.8/
+        	./configure
+        	make
+		make install
+        	cd ../
+	#ln
+        ln -s /usr/local/lib/libmcrypt.la /usr/lib/libmcrypt.la
+        ln -s /usr/local/lib/libmcrypt.so /usr/lib/libmcrypt.so
+        ln -s /usr/local/lib/libmcrypt.so.4 /usr/lib/libmcrypt.so.4
+        ln -s /usr/local/lib/libmcrypt.so.4.4.8 /usr/lib/libmcrypt.so.4.4.8
+        ln -s /usr/local/lib/libmhash.a /usr/lib/libmhash.a
+        ln -s /usr/local/lib/libmhash.la /usr/lib/libmhash.la
+        ln -s /usr/local/lib/libmhash.so /usr/lib/libmhash.so
+        ln -s /usr/local/lib/libmhash.so.2 /usr/lib/libmhash.so.2
+        ln -s /usr/local/lib/libmhash.so.2.0.1 /usr/lib/libmhash.so.2.0.1
+        ln -s /usr/local/bin/libmcrypt-config /usr/bin/libmcrypt-config
+        cp -frp /usr/lib64/libldap* /usr/lib/
+
+	echo ''
+        echo ''
+        echo '====================================================================================='
+        echo '===base lib for berkeley&openldap install successed                                              ==='
+        echo '====================================================================================='
+else
+	echo ''
+	echo 'base lib has been installed!'
+	echo ''
+fi
